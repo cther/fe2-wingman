@@ -1,0 +1,19 @@
+services:
+  fe2_wingman:
+    container_name: fe2_wingman
+    image: python:3.13-alpine
+    restart: unless-stopped
+    volumes:
+      - ./data:/usr/src/myapp
+    command:
+      sh -c "pip install --no-cache-dir -r /usr/src/myapp/requirements.txt && python -u /usr/src/myapp/main.py"
+    environment:
+      TZ: "Europe/Berlin"
+      WM_CONFIG_DB_URL: mongodb://user:pass@fe2_database_server:27017
+      WM_CONFIG_FE2_URL: https://fe2.mydomain.eu:80
+      WM_CONFIG_FE2_SECRET: seCret12357#
+      WM_CONFIG_FE2_USE_UNIT_IDS: false
+      WM_OPTION_ROADBLOCK_ENABLE: true
+      WM_OPTION_ROADBLOCK_NEW: false
+      WM_OPTION_ROADBLOCK_UPCOMING: true
+      WM_OPTION_ROADBLOCK_EXPIRING: true

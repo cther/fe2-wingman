@@ -1,0 +1,7 @@
+/data/.venv
+/data/.vs
+/data/*.pyproj
+/data/*.sln
+/docker-compose.yml
+/data/__pycache__
+/data/unit_ids.ini
