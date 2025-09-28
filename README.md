@@ -1,7 +1,7 @@
 # FE2 Wingman
 Das Ziel dieses Projektes ist es, den bestehenden Funktionsumfang der Alarmplattform [FE2](https://alamos.gmbh/loesungen/alarmplattform) der Alamos GmbH zu erweitern. Motiviert durch den Wunsch nach zusätzlichen Möglichkeiten der automatisierten Benachrichtigung, im Zusammenhang mit [Verkehrsbehinderungen](https://alamos-support.atlassian.net/wiki/spaces/documentation/pages/219480778/Verkehrsbehinderungen#Dokumente-anh%C3%A4ngen-FE2-2.38), entstand der FE2 Wingman.
 
-Der FE2 Wingman greift rein lesend auf die zum FE2 System gehörende Datenbank zu und reagiert auf inhaltliche Veränderungen. Alle übrigen Interaktionen mit dem FE2 Server erfolgen über die öffentliche API, in Form von regulären Alarmierungen. Innerhalb von FE2 kann in gewohnter Art und Weise auf die Alarmierung reagiert werden ([Übersicht Alarmparameter](alarmparameter))
+Der FE2 Wingman greift rein lesend auf die zum FE2 System gehörende Datenbank zu und reagiert auf inhaltliche Veränderungen. Alle übrigen Interaktionen mit dem FE2 Server erfolgen über die öffentliche API, in Form von regulären Alarmierungen. Innerhalb von FE2 kann in gewohnter Art und Weise auf die Alarmierung reagiert werden ([Übersicht Alarmparameter](#alarmparameter))
 
 Enthaltenden Funktionen:
 * Möglichkeit der Benachrichtigung bei neu erstellten/geänderten, anstehenden oder auslaufenden Verkehrsbehinderungen
