@@ -38,11 +38,9 @@ class mongodb:
         try:
             self.__host = pymongo.MongoClient(url, serverSelectionTimeoutMS=500)
             self.__host.server_info()
-
-        except pymongo.errors.ServerSelectionTimeoutError as error:
-            log.critical(error)
-        except pymongo.errors.OperationFailure as error:
-            log.critical(error)
+        except Exception as error:
+            log.critical("Fe2 db connection error! %s" % error)
+            exit()
         else:
             self.__connected = True
 

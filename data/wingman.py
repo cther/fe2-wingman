@@ -45,6 +45,8 @@ class wingman:
 
         self.__rb_hour_offset = 0
 
+        self.run_check()
+
     def add_units(self, units:dict):
             self.__ep_units_en = True
             self.__ep_orga_units = units
@@ -53,11 +55,17 @@ class wingman:
         return self.__db.get_app_version()
 
     def run_check(self):
-        ret = self.__ep.check_connection()
-        if ret['status']:
-            log.critical("Fe2 offline:", ret['msg'])
+        try:
+            ret = self.__ep.check_connection()
+        except Exception as error:
+            log.critical("Fe2 server connection error! %s" % error)
+            exit()
         else:
-            log.warning("Fe2 online")
+            if ret['status']:
+                log.critical("Fe2 offline: %s" % ret['msg'])
+            else:
+                log.warning("Fe2 online")
+
 
     def run_rb_new(self):
         log.info("Check for new/modified roadblocks...")
