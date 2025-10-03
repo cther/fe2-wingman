@@ -34,8 +34,8 @@ from loggsys import log
 
 
 name = 'FE2 Wingman'
-version = 'v0.0.9'
-date = 'Sep. 2025'
+version = 'v0.0.10'
+date = 'Oct. 2025'
 sender = name + ' ' + version
 
 env_opt_logging = True if os.getenv('WM_CONFIG_LOG_LEVEL', 'WARNING') == 'DEBUG' else False
