@@ -129,7 +129,7 @@ docker compose up -d
 | `sender` | Konstante Zeichenkette mit Versionsnummer `FE2 Wingman vX.X.X`  |
 | `city` | Ortsnamen |
 | `street` | Straßenname |
-| `lat` & `lan` | Bei einem gezeichneten Strecktenabschnitten wird der Mittelpunkt angegeben, andernfalls der ausgewälte Punkt |
+| `lat` & `lng` | Bei einem gezeichneten Strecktenabschnitten wird der Mittelpunkt angegeben, andernfalls der ausgewälte Punkt |
 | `message` | Vorgefertigter Meldungstext |
 | `wm_function` | Konstante Zeichenkette `roadblock`|
 | `wm_subject` | Meldungsüberschrift |
