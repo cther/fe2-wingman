@@ -77,7 +77,7 @@ class wingman:
             if self.__ep_units_en:
                 unit = self.__ep_orga_units.get(x.get('parent'), None)
                 if unit == None:
-                    log.error('No unit found. Skipping for %s' % unit)
+                    log.error('No unit found. Skipping for %s' % x['parent'])
                     return
                 
                 log.info('Use unit for %s' % x.get('parent'))
@@ -152,7 +152,7 @@ class wingman:
             if self.__ep_units_en:
                 unit = self.__ep_orga_units.get(x.get('parent'), None)
                 if unit == None:
-                    log.error('No unit found. Skipping for %s' % unit)
+                    log.error('No unit found. Skipping for %s' % x['parent'])
                     return
                 
                 log.info('Use unit for %s' % x.get('parent'))
@@ -223,7 +223,7 @@ class wingman:
             if self.__ep_units_en:
                 unit = self.__ep_orga_units.get(x.get('parent'), None)
                 if unit == None:
-                    log.error('No unit found. Skipping for %s' % unit)
+                    log.error('No unit found. Skipping for %s' % x['parent'])
                     return
                 
                 log.info('Use unit for %s' % x.get('parent'))
