@@ -40,9 +40,9 @@ class mongodb:
             self.__host.server_info()
 
         except pymongo.errors.ServerSelectionTimeoutError as error:
-            log.error(error)
+            log.critical(error)
         except pymongo.errors.OperationFailure as error:
-            log.error(error)
+            log.critical(error)
         else:
             self.__connected = True
 
@@ -113,22 +113,22 @@ class roadblock:
 
     def get_new(self):
         self.__tp_pre_run = self.__tp_last_run
-        log.debug('   roadblock: get new entries')
+        log.info('   roadblock: get new entries')
         ret = self.__table.find({'lastChanged' : {'$gt': self.__tp_last_run}})            
         self.__tp_last_run = int(datetime.now(self.__tz_utc).timestamp()*1000)
-        log.debug('   roadblock: finished, update tp:', self.__tp_last_run)
+        log.info('   roadblock: finished, update tp: %d' % self.__tp_last_run)
         return ret
     
     def get_upcoming(self, offset=0):
         now = datetime.now().replace(second=0, microsecond=0) + timedelta(hours=offset)
-        log.debug('   roadblock: get events that are starting at:', now)
+        log.info('   roadblock: get events that are starting at: %s' % now)
         ret = self.__table.find({'from' : {'$eq' : now.astimezone(self.__tz_utc) } })
-        log.debug('   roadblock: finished')
+        log.info('   roadblock: finished')
         return ret
     
     def get_expiring(self, offset=0):
         now = datetime.now().replace(second=0, microsecond=0) + timedelta(hours=offset)
-        log.debug('   roadblock: get events that are ending at:', now)
+        log.info('   roadblock: get events that are ending at: %s' % now)
         ret = self.__table.find({'to' : {'$eq' : now.astimezone(self.__tz_utc) } })
-        log.debug('   roadblock: finished')
+        log.info('   roadblock: finished')
         return ret

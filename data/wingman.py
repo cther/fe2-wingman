@@ -55,9 +55,9 @@ class wingman:
     def run_check(self):
         ret = self.__ep.check_connection()
         if ret['status']:
-            log.error("Fe2 offline:", ret['msg'])
+            log.critical("Fe2 offline:", ret['msg'])
         else:
-            log.info("Fe2 online")
+            log.warning("Fe2 online")
 
     def run_rb_new(self):
         log.info("Check for new/modified roadblocks...")
@@ -69,10 +69,10 @@ class wingman:
             if self.__ep_units_en:
                 unit = self.__ep_orga_units.get(x.get('parent'), None)
                 if unit == None:
-                    log.error('No unit found. Skipping',  unit)
+                    log.error('No unit found. Skipping for %s' % unit)
                     return
                 
-                log.info('Use unit for', x.get('parent'))
+                log.info('Use unit for %s' % x.get('parent'))
             else:
                 unit = None
                 log.info('Support for units disabeled')
@@ -107,27 +107,27 @@ class wingman:
             log.warning('new/updated: %s' % message)
 
             log.info("Get:")
-            log.info('+  State:  ', state)
-            log.info('+  Orga:   ', x.get('parent'), '( id:', unit, ')' )
-            log.info('+  Name:   ', x.get('name'))
-            log.info('+  Reason: ', x.get('reason', ''))
-            log.info('+  Note:   ', x.get('note', ''))
-            log.info('+  Street: ', x.get('street', ''))
-            log.info('+  City:   ', x.get('city', ''))
-            log.info('+  Type:   ', x.get('type'))
-            log.info('+  Status: ', status)
-            log.info('+  From:   ', start)
-            log.info('+  To:     ', end)
+            log.info('+  State:  %s' % state)
+            log.info('+  Orga:   %s' % x.get('parent'), '( id:', unit, ')' )
+            log.info('+  Name:   %s' % x.get('name'))
+            log.info('+  Reason: %s' % x.get('reason', ''))
+            log.info('+  Note:   %s' % x.get('note', ''))
+            log.info('+  Street: %s' % x.get('street', ''))
+            log.info('+  City:   %s' % x.get('city', ''))
+            log.info('+  Type:   %s' % x.get('type'))
+            log.info('+  Status: %s' % status)
+            log.info('+  From:   %s' % start)
+            log.info('+  To:     %s' % end)
             
             center = None
             if 'jsonGeometry' in x:
                 if x['jsonGeometry']['type'] == 'Point':
                     center = x['jsonGeometry']['coordinates']
-                    log.info('+  Center: ', center)
+                    log.info('+  Center: %s' % center)
                 if x['jsonGeometry']['type'] == 'LineString':
                     t = coord.track(x['jsonGeometry']['coordinates'])
                     center = t.get_midle()
-                    log.info('+  Center: ', center)
+                    log.info('+  Center: %s' % center)
 
             self.__ep_rb.send(unit, state, x.get('type'), status, x.get('parent'), x.get('name'), x.get('city',''), x.get('street',''), start, end, center, subject, message)
 
@@ -144,10 +144,10 @@ class wingman:
             if self.__ep_units_en:
                 unit = self.__ep_orga_units.get(x.get('parent'), None)
                 if unit == None:
-                    log.error('No unit found. Skipping',  unit)
+                    log.error('No unit found. Skipping for %s' % unit)
                     return
                 
-                log.info('Use unit for', x.get('parent'))
+                log.info('Use unit for %s' % x.get('parent'))
             else:
                 unit = None
                 log.info('Support for units disabeled')
@@ -178,27 +178,27 @@ class wingman:
             log.warning('upcoming: %s' % message)
 
             log.info("Get:")
-            log.info('+  State:  ', state)
-            log.info('+  Orga:   ', x.get('parent'), '( id:', unit, ')' )
-            log.info('+  Name:   ', x.get('name'))
-            log.info('+  Reason: ', x.get('reason', ''))
-            log.info('+  Note:   ', x.get('note', ''))
-            log.info('+  Street: ', x.get('street', ''))
-            log.info('+  City:   ', x.get('city', ''))
-            log.info('+  Type:   ', x.get('type'))
-            log.info('+  Status: ', status)
-            log.info('+  From:   ', start)
-            log.info('+  To:     ', end)
+            log.info('+  State:  %s' % state)
+            log.info('+  Orga:   %s' % x.get('parent'), '( id:', unit, ')' )
+            log.info('+  Name:   %s' % x.get('name'))
+            log.info('+  Reason: %s' % x.get('reason', ''))
+            log.info('+  Note:   %s' % x.get('note', ''))
+            log.info('+  Street: %s' % x.get('street', ''))
+            log.info('+  City:   %s' % x.get('city', ''))
+            log.info('+  Type:   %s' % x.get('type'))
+            log.info('+  Status: %s' % status)
+            log.info('+  From:   %s' % start)
+            log.info('+  To:     %s' % end)
             
             center = None
             if 'jsonGeometry' in x:
                 if x['jsonGeometry']['type'] == 'Point':
                     center = x['jsonGeometry']['coordinates']
-                    log.info('+  Center: ', center)
+                    log.info('+  Center: %s' % center)
                 if x['jsonGeometry']['type'] == 'LineString':
                     t = coord.track(x['jsonGeometry']['coordinates'])
                     center = t.get_midle()
-                    log.info('+  Center: ', center)
+                    log.info('+  Center: %s' % center)
             
             self.__ep_rb.send(unit, state, x.get('type'), status, x.get('parent'), x.get('name'), x.get('city',''), x.get('street',''), start, end, center, subject, message)
 
@@ -215,10 +215,10 @@ class wingman:
             if self.__ep_units_en:
                 unit = self.__ep_orga_units.get(x.get('parent'), None)
                 if unit == None:
-                    log.error('No unit found. Skipping',  unit)
+                    log.error('No unit found. Skipping for %s' % unit)
                     return
                 
-                log.info('Use unit for', x.get('parent'))
+                log.info('Use unit for %s' % x.get('parent'))
             else:
                 unit = None
                 log.info('Support for units disabeled')
@@ -250,27 +250,27 @@ class wingman:
             log.warning('expiring: %s' % message)
 
             log.info("Get:")
-            log.info('+  State:  ', state)
-            log.info('+  Orga:   ', x.get('parent'), '( id:', unit, ')' )
-            log.info('+  Name:   ', x.get('name'))
-            log.info('+  Reason: ', x.get('reason', ''))
-            log.info('+  Note:   ', x.get('note', ''))
-            log.info('+  Street: ', x.get('street', ''))
-            log.info('+  City:   ', x.get('city', ''))
-            log.info('+  Type:   ', x.get('type'))
-            log.info('+  Status: ', status)
-            log.info('+  From:   ', start)
-            log.info('+  To:     ', end)
+            log.info('+  State:  %s' % state)
+            log.info('+  Orga:   %s' % x.get('parent'), '( id:', unit, ')' )
+            log.info('+  Name:   %s' % x.get('name'))
+            log.info('+  Reason: %s' % x.get('reason', ''))
+            log.info('+  Note:   %s' % x.get('note', ''))
+            log.info('+  Street: %s' % x.get('street', ''))
+            log.info('+  City:   %s' % x.get('city', ''))
+            log.info('+  Type:   %s' % x.get('type'))
+            log.info('+  Status: %s' % status)
+            log.info('+  From:   %s' % start)
+            log.info('+  To:     %s' % end)
             
             center = None
             if 'jsonGeometry' in x:
                 if x['jsonGeometry']['type'] == 'Point':
                     center = x['jsonGeometry']['coordinates']
-                    log.info('+  Center: ', center)
+                    log.info('+  Center: %s' % center)
                 if x['jsonGeometry']['type'] == 'LineString':
                     t = coord.track(x['jsonGeometry']['coordinates'])
                     center = t.get_midle()
-                    log.info('+  Center: ', center)
+                    log.info('+  Center: %s' % center)
 
             self.__ep_rb.send(unit, state, x.get('type'), status, x.get('parent'), x.get('name'), x.get('city',''), x.get('street',''), start, end, center, subject, message)
 

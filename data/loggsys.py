@@ -28,6 +28,9 @@ import logging
 
 
 log = logging
-log.basicConfig(format="{asctime} - {levelname} - {message}", style="{", datefmt="%Y-%m-%d %H:%M:%S", level=logging.WARNING)
-# use WARNING as the default info log level.
-log.addLevelName(logging.WARNING, 'NOTE')
+# use WARNING as the default log level
+log.basicConfig(format="{asctime} - {levelname} - {message}", style="{", datefmt="%Y-%m-%d %H:%M:%S", level=logging.ERROR)
+log.addLevelName(logging.CRITICAL, 'ERROR')
+log.addLevelName(logging.ERROR, 'WARNING')
+log.addLevelName(logging.WARNING, 'INFO')
+log.addLevelName(logging.INFO, 'DEV')

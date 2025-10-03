@@ -116,5 +116,5 @@ class roadblock:
             'wm_rb_icon': "\U0001F6A7"
         }
 
-        log.info('Send to Fe2:', payload)
+        log.info('Send to Fe2: %s' % payload)
         log.warning('roadblock.send: %s' % self.__fe2_ext_iface.send_alarm(payload))

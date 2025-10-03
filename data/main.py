@@ -90,12 +90,12 @@ if env_opt_units:
     config.read(config_file)
 
     if not len(config.sections()):
-         log.error('Can not open unit config file!')
+         log.critical("Can't open unit config file in 'data/unit_ids.ini'!")
          exit()
 
     orga_units = config['orga_units']
     if not len(orga_units):
-        log.error('Get No items from config file!')
+        log.critical('Get No items from config file!')
         exit()
 
     log.warning(' Add following units:')
