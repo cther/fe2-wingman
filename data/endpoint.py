@@ -80,14 +80,14 @@ class roadblock:
         self.__fe2_ext_iface = fe2_ext_iface
 
     def send(self, unit, state, type, status, orga, name, city, street, start, end, coordinate:list, subject, message:list):
-        location = dict()
-        payload = dict()
+        location = {}
+        payload = {}
 
         if coordinate != None:
-            location['coordinate'] = list((
+            location['coordinate'] = [
                     coordinate[0],
                     coordinate[1]
-                ))
+                ]
         location['city'] = city
         location['street'] = street
 
@@ -97,11 +97,11 @@ class roadblock:
         payload["location"] = location
 
         if unit != None:
-            payload["units"] = list((
+            payload["units"] = [
                 dict(
                     address = unit
                 ),
-            ))
+            ]
 
         payload["custom"]  = {
             'wm_function': 'roadblock',
@@ -116,5 +116,38 @@ class roadblock:
             'wm_rb_icon': "\U0001F6A7"
         }
 
-        log.info('Send to Fe2: %s' % payload)
+        log.info('Send roadblock.data to Fe2: %s' % payload)
         log.warning('roadblock.send: %s' % self.__fe2_ext_iface.send_alarm(payload))
+        
+        
+class vehiclestate:
+    def __init__(self, fe2_ext_iface):
+        self.__fe2_ext_iface = fe2_ext_iface
+        
+    def send(self, units:list, address, name, shortname, orga, state, prestate, icon, definition, message):
+        payload = {}
+
+        payload["keyword"] = icon + ' ' + definition
+
+        if message != None:
+            payload["message"] = [message]
+
+        if units != None:
+            payload["units"] = []
+            for i in units:
+                payload["units"].append({'address' : i})
+
+        payload["custom"]  = {
+            'wm_function': 'vehiclestate',
+            'wm_vs_address': address,
+            'wm_vs_name': name,
+            'wm_vs_short_name': shortname,
+            'wm_vs_orga': orga,
+            'wm_vs_state_from': prestate,
+            'wm_vs_state_to': state,
+            'wm_vs_icon': icon,
+            'wm_vs_definition': definition
+        }
+
+        log.info('Send vehiclestate to Fe2: %s' % payload)
+        log.warning('vehiclestate.send: %s' % self.__fe2_ext_iface.send_alarm(payload))

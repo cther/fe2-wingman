@@ -35,9 +35,11 @@ class wingman:
     def __init__(self, sender, db_url, fe2_url, fe2_sec):
         self.__db = db.mongodb(db_url)
         self.__db_rb = db.roadblock(self.__db)
+        self.__db_vs = db.vehiclestate(self.__db)
 
         self.__ep = ep.fe2_external_interface(sender, fe2_url, fe2_sec)
         self.__ep_rb = ep.roadblock(self.__ep)
+        self.__ep_vs = ep.vehiclestate(self.__ep)
 
         self.__ep_units_en = False
         self.__ep_std_units = None
@@ -45,11 +47,39 @@ class wingman:
 
         self.__rb_hour_offset = 0
 
-        self.run_check()
+        self.__state_lut = {
+            'STATUS_0' : {'num':'0', 'icon':'\U00000030\U0000FE0F\U000020E3'},
+            'STATUS_1' : {'num':'1', 'icon':'\U00000031\U0000FE0F\U000020E3'},
+            'STATUS_2' : {'num':'2', 'icon':'\U00000032\U0000FE0F\U000020E3'},
+            'STATUS_3' : {'num':'3', 'icon':'\U00000033\U0000FE0F\U000020E3'},
+            'STATUS_4' : {'num':'4', 'icon':'\U00000034\U0000FE0F\U000020E3'},
+            'STATUS_5' : {'num':'5', 'icon':'\U00000035\U0000FE0F\U000020E3'},
+            'STATUS_6' : {'num':'6', 'icon':'\U00000036\U0000FE0F\U000020E3'},
+            'STATUS_7' : {'num':'7', 'icon':'\U00000037\U0000FE0F\U000020E3'},
+            'STATUS_8' : {'num':'8', 'icon':'\U00000038\U0000FE0F\U000020E3'},
+            'STATUS_9' : {'num':'9', 'icon':'\U00000039\U0000FE0F\U000020E3'},
+            'STATUS_A' : {'num':'A', 'icon':'\U000026AA'},
+            'STATUS_C' : {'num':'C', 'icon':'\U0001F534'},
+            'STATUS_E' : {'num':'E', 'icon':'\U000026AB'},
+            'STATUS_F' : {'num':'F', 'icon':'\U0001F535'},
+            'STATUS_H' : {'num':'H', 'icon':'\U0001F7E1'},
+            'STATUS_J' : {'num':'J', 'icon':'\U0000260E'},
+        }
 
+        self.run_check()
+        
     def add_units(self, units:dict):
-            self.__ep_units_en = True
-            self.__ep_orga_units = units
+        self.__ep_units_en = True
+        self.__ep_orga_units = units
+
+    def get_state_c(self, switch=True):
+        self.__db_vs.get_state_c(switch)
+
+    def get_state_0(self, switch=True):
+        self.__db_vs.get_state_0(switch)
+
+    def get_state_5(self, switch=True):
+        self.__db_vs.get_state_5(switch)
 
     def get_server_version(self):
         return self.__db.get_app_version()
@@ -64,7 +94,7 @@ class wingman:
             if ret['status']:
                 log.critical("Fe2 offline: %s" % ret['msg'])
             else:
-                log.warning("Fe2 online")
+                log.info("Fe2 online")
 
 
     def run_rb_new(self):
@@ -75,12 +105,12 @@ class wingman:
         for x in ret:
 
             if self.__ep_units_en:
-                unit = self.__ep_orga_units.get(x.get('parent'), None)
+                unit = self.__ep_orga_units.get(x['parent'], None)
                 if unit == None:
                     log.error('No unit found. Skipping for %s' % x['parent'])
                     return
                 
-                log.info('Use unit for %s' % x.get('parent'))
+                log.info('Use unit for %s' % x['parent'])
             else:
                 unit = None
                 log.info('Support for units disabeled')
@@ -98,7 +128,7 @@ class wingman:
             else:
                 status = 'PENDING'
             
-            subject = '\U0001F6A7 ' + x.get('name')
+            subject = '\U0001F6A7 ' + x['name']
 
             message = list((
                 '-- Verkehrsbehinderung --',
@@ -108,9 +138,9 @@ class wingman:
                 start + ' bis ' + end,
             ))
             if x.get('reason', '') != '':
-                message.append('Grund: ' + x.get('reason'))
+                message.append('Grund: ' + x['reason'])
             if x.get('note', '') != '':
-                message.append('Hinweis: ' + x.get('note'))
+                message.append('Hinweis: ' + x['note'])
 
             log.warning('new/updated: %s' % message)
 
@@ -150,12 +180,12 @@ class wingman:
         for x in ret:
 
             if self.__ep_units_en:
-                unit = self.__ep_orga_units.get(x.get('parent'), None)
+                unit = self.__ep_orga_units.get(x['parent'], None)
                 if unit == None:
                     log.error('No unit found. Skipping for %s' % x['parent'])
                     return
                 
-                log.info('Use unit for %s' % x.get('parent'))
+                log.info('Use unit for %s' % x['parent'])
             else:
                 unit = None
                 log.info('Support for units disabeled')
@@ -170,7 +200,7 @@ class wingman:
             else:
                 status = 'PENDING'
 
-            subject = '\U0001F6A7 ' + x.get('name')
+            subject = '\U0001F6A7 ' + x['name']
 
             message = list((
                 '-- Verkehrsbehinderung --',
@@ -179,9 +209,9 @@ class wingman:
                 start + ' bis ' + end,
             ))
             if x.get('reason', '') != '':
-                message.append('Grund: ' + x.get('reason'))
+                message.append('Grund: ' + x['reason'])
             if x.get('note', '') != '':
-                message.append('Hinweis: ' + x.get('note'))
+                message.append('Hinweis: ' + x['note'])
 
             log.warning('upcoming: %s' % message)
 
@@ -221,12 +251,12 @@ class wingman:
         for x in ret:
 
             if self.__ep_units_en:
-                unit = self.__ep_orga_units.get(x.get('parent'), None)
+                unit = self.__ep_orga_units.get(x['parent'], None)
                 if unit == None:
                     log.error('No unit found. Skipping for %s' % x['parent'])
                     return
                 
-                log.info('Use unit for %s' % x.get('parent'))
+                log.info('Use unit for %s' % x['parent'])
             else:
                 unit = None
                 log.info('Support for units disabeled')
@@ -242,7 +272,7 @@ class wingman:
             else:
                 status = 'ACTIVE'
 
-            subject = '\U0001F6A7 ' + x.get('name')
+            subject = '\U0001F6A7 ' + x['name']
 
             message = list((
                 '-- Verkehrsbehinderung --',
@@ -251,9 +281,9 @@ class wingman:
                 start + ' bis ' + end,
             ))
             if x.get('reason', '') != '':
-                message.append('Grund: ' + x.get('reason'))
+                message.append('Grund: ' + x['reason'])
             if x.get('note', '') != '':
-                message.append('Hinweis: ' + x.get('note'))
+                message.append('Hinweis: ' + x['note'])
 
             log.warning('expiring: %s' % message)
 
@@ -281,5 +311,58 @@ class wingman:
                     log.info('+  Center: %s' % center)
 
             self.__ep_rb.send(unit, state, x.get('type'), status, x.get('parent'), x.get('name'), x.get('city',''), x.get('street',''), start, end, center, subject, message)
+
+        log.info("Run finished...")
+    
+
+    def run_vs_new(self):
+        log.info("Check for new vehicle states...")
+        ret = self.__db_vs.get_new()
+
+        log.info("Walk through resoults...")
+        for x in ret:
+            icon = self.__state_lut[x['status']]['icon']
+            definition = self.__db_vs.get_state_definition(x['status'])
+
+            state = self.__state_lut[x['status']]['num']
+            prestate = self.__state_lut[self.__db_vs.get_previous_state(x['vehicle_id'], x['timestamp'])]['num']
+
+            vehicle = self.__db_vs.get_vehicle_details(x['vehicle_id'])
+            orga = self.__db_vs.get_vehicle_orga_list(x['vehicle_id'])
+
+            message = 'Statuswechsel %s. Aktueller Status %s (Vorher: %s)' % (vehicle['name'], state, prestate)
+
+            log.warning('state: %s' % message)
+
+            if self.__ep_units_en:
+                units = []
+                for i in orga:
+                    unit = self.__ep_orga_units.get(i, None)
+                    if unit == None:
+                        log.warning('No id found for unit \'%s\'. Skipping...' % i)
+                        continue
+                    
+                    log.info('Use unit for %s' % i)
+                    units.append(unit)
+                
+                if len(units) == 0:
+                    units = None
+            else:
+                units = None
+                log.info('Support for units disabeled')
+            
+            orga = ','.join(map(str, orga))
+
+            log.info("Get:")
+            log.info('+  Address:     %s' % vehicle['code'])
+            log.info('+  Name:        %s' % vehicle['name'])
+            log.info('+  ShortName:   %s' % vehicle['shortName'])
+            log.info('+  Orga:        %s' % orga)
+            log.info('+  Icon:        %s' % icon)
+            log.info('+  Definition:  %s' % definition)
+            log.info('+  Status:      %s' % state)
+            log.info('+  PreState:    %s' % prestate)
+
+            self.__ep_vs.send(units, vehicle['code'], vehicle['name'], vehicle['shortName'], orga, state, prestate, icon, definition, message)
 
         log.info("Run finished...")

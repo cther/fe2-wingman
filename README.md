@@ -76,6 +76,10 @@ docker compose down
       WM_OPTION_ROADBLOCK_NEW: false
       WM_OPTION_ROADBLOCK_UPCOMING: true
       WM_OPTION_ROADBLOCK_EXPIRING: true
+	  WM_OPTION_VEHICLE_ENABLE: true
+	  WM_OPTION_VEHICLE_SKIP_C: false
+	  WM_OPTION_VEHICLE_SKIP_0: false
+	  WM_OPTION_VEHICLE_SKIP_5: false
 ```
 4. Wenn erforderlich den Namen des Datenbank Containers und FE2 Containers übernehmen. Die Werte der Parameter `container_name` müssen in die Konfiguration des Wingman übernommen werden
 ```

@@ -130,3 +130,93 @@ class roadblock:
         ret = self.__table.find({'to' : {'$eq' : now.astimezone(self.__tz_utc) } })
         log.info('   roadblock: finished')
         return ret
+    
+
+class vehiclestate:
+    def __init__(self, db_host):
+        self.__host = db_host.get_host()
+
+        self.__tb_vehicle = self.__host['de_alamos_fe2']['vehicle']
+        self.__tb_states = self.__host['de_alamos_fe2']['statusEntry']
+        self.__tb_statedefs = self.__host['de_alamos_fe2']['statusDefinition']
+        self.__tb_usermap = self.__host['de_alamos_fe2']['vehicleUserMapping']
+        self.__tb_user = self.__host['de_alamos_fe2']['user']
+
+        self.__tz_utc = pytz.timezone('Etc/UTC')
+
+        self.__tp_last_run = int(datetime.now(self.__tz_utc).timestamp()*1000)
+
+        self.__skip_state_c = True
+        self.__skip_state_0 = True
+        self.__skip_state_5 = True
+
+    def reset_last_run(self):
+        self.__tp_last_run = 0
+    
+    def get_state_c(self, switch:bool):
+        self.__skip_state_c = not switch
+
+    def get_state_0(self, switch:bool):
+        self.__skip_state_0 = not switch
+
+    def get_state_5(self, switch:bool):
+        self.__skip_state_5 = not switch
+
+    def __add_skip_list(self, base:dict):
+
+        if self.__skip_state_c or self.__skip_state_0 or self.__skip_state_5:
+            skip = []
+            if self.__skip_state_c:
+                log.info('   vehiclestate: skip state c')
+                skip.append({'$ne': 'STATUS_C'})
+            if self.__skip_state_0:
+                log.info('   vehiclestate: skip state 1')
+                skip.append({'$ne': 'STATUS_0'})
+            if self.__skip_state_5:
+                log.info('   vehiclestate: skip state 5')
+                skip.append({'$ne': 'STATUS_5'})
+
+            if len(skip) == 1:
+                base['status'] = skip[0] 
+            else:
+                base['$and'] = []
+                for i in skip:
+                    base['$and'].append({'status': i})
+        return base
+    
+    def get_new(self):
+        log.info('   vehiclestate: get new entries')
+        qury = self.__add_skip_list({'timestamp' : {'$gt': self.__tp_last_run}})
+        ret = self.__tb_states.find(qury).sort({'timestamp': 1})
+        self.__tp_last_run = int(datetime.now(self.__tz_utc).timestamp()*1000)
+        log.info('   vehiclestate: finished, update tp: %s' % self.__tp_last_run)
+        return ret
+
+    def get_previous_state(self, vid, timestamp):
+        log.info('   vehiclestate: get previous state for vid: %s' % vid)
+        qury = self.__add_skip_list({'vehicle_id': vid, 'timestamp' : {'$lt': timestamp}})
+        ret = self.__tb_states.find(qury).sort({'timestamp': -1}).limit(1)
+        return ret[0]['status']
+
+    def get_state_definition(self, state):
+        log.info('   vehiclestate: get definition for state: %s' % state)
+        ret = self.__tb_statedefs.find({'_id' : {'$eq': state}})
+        return ret[0]['translation']
+
+    def get_vehicle_details(self, vid):
+        log.info('   vehiclestate: get vehicle information for vid: %s' % vid)
+        ret = self.__tb_vehicle.find({'_id' : vid})
+        return ret[0]
+    
+    def get_vehicle_orga_list(self, vid):
+        ret = []
+        log.info('   vehiclestate: get orga list for vid: %s' % vid)
+        uids = self.__tb_usermap.find({'vehicleId' : vid})
+
+        for x in uids:
+            uid = x['userId']
+            uname = self.__tb_user.find({'_id' : uid})[0]['name']
+            log.info('    + %s' % uname)
+            ret.append(uname)
+
+        return ret

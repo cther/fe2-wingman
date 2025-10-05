@@ -34,11 +34,10 @@ from loggsys import log
 
 
 name = 'FE2 Wingman'
-version = 'v0.0.10'
+version = 'v0.1.0'
 date = 'Oct. 2025'
 sender = name + ' ' + version
 
-env_opt_logging = True if os.getenv('WM_CONFIG_LOG_LEVEL', 'WARNING') == 'DEBUG' else False
 
 env_db_url = os.getenv('WM_CONFIG_DB_URL')
 
@@ -52,17 +51,19 @@ env_opt_road_new = True if os.getenv('WM_OPTION_ROADBLOCK_NEW', 'false') == 'tru
 env_opt_road_upcoming = True if os.getenv('WM_OPTION_ROADBLOCK_UPCOMING', 'false') == 'true' else False
 env_opt_road_expiring = True if os.getenv('WM_OPTION_ROADBLOCK_EXPIRING', 'false') == 'true' else False
 
-#env_opt_vehicle = True if os.getenv('WM_OPTION_VEHICLE_ENABLE', 'false') == 'true' else False
-
+env_opt_vehicle = True if os.getenv('WM_OPTION_VEHICLE_ENABLE', 'false') == 'true' else False
+env_opt_vehicle_skip_c = True if os.getenv('WM_OPTION_VEHICLE_SKIP_C', 'false') == 'true' else False
+env_opt_vehicle_skip_0 = True if os.getenv('WM_OPTION_VEHICLE_SKIP_0', 'false') == 'true' else False
+env_opt_vehicle_skip_5 = True if os.getenv('WM_OPTION_VEHICLE_SKIP_5', 'false') == 'true' else False
 
 print()
-print(' +-----------------------+')
-print(' |                       |')
-print(' |      %s      |' % name)
-print(' |                       |')
-print(' |   %s  %s   |' % (version, date))
-print(' |                       |')
-print(' +-----------------------+')
+print(' +-------------------------+')
+print(' |                         |')
+print(' |       %s       |' % name)
+print(' |                         |')
+print(' |  %-9s   %s  |' % (version, date))
+print(' |                         |')
+print(' +-------------------------+')
 print()
 print('  - Config "Call units":', env_opt_units)
 print()
@@ -71,8 +72,11 @@ print('      - get new/modified: ', env_opt_road_new)
 print('      - get upcomming:    ', env_opt_road_upcoming)
 print('      - get expiring:     ', env_opt_road_expiring)
 print()
-#print('  - Option "VEHICLE":', env_opt_vehicle)
-#print()
+print('  - Option "VEHICLE": ', env_opt_vehicle)
+print('      - skip state C:     ', env_opt_vehicle_skip_c)
+print('      - skip state 0:     ', env_opt_vehicle_skip_0)
+print('      - skip state 5:     ', env_opt_vehicle_skip_5)
+print()
 
 
 wingman = wm.wingman(sender, env_db_url, env_fe2_url, env_fe2_sec)
@@ -119,8 +123,12 @@ if env_opt_road:
     if env_opt_road_expiring:
         scheduler.every(1).minutes.do(wingman.run_rb_expiring)
 
-#if env_opt_vehicle:
-#    pass
+if env_opt_vehicle:
+    wingman.get_state_c(not env_opt_vehicle_skip_c)
+    wingman.get_state_0(not env_opt_vehicle_skip_0)
+    wingman.get_state_5(not env_opt_vehicle_skip_5)
+
+    scheduler.every(5).seconds.do(wingman.run_vs_new)
 
 
 while True:
