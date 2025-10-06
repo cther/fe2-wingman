@@ -79,9 +79,11 @@ class roadblock:
     def __init__(self, fe2_ext_iface):
         self.__fe2_ext_iface = fe2_ext_iface
 
-    def send(self, unit, state, type, status, orga, name, city, street, start, end, coordinate:list, subject, message:list):
+    def send(self, unit, state, type, status, orga, name, city, street, start, end, coordinate:list, icon, message:list):
         location = {}
         payload = {}
+        
+        payload["keyword"] = icon + ' ' + name
 
         if coordinate != None:
             location['coordinate'] = [
@@ -105,7 +107,6 @@ class roadblock:
 
         payload["custom"]  = {
             'wm_function': 'roadblock',
-            'wm_subject': subject,
             'wm_rb_name': name,
             'wm_rb_state': state,
             'wm_rb_type': type,
@@ -113,7 +114,7 @@ class roadblock:
             'wm_rb_orga': orga,
             'wm_rb_start': start,
             'wm_rb_end': end,
-            'wm_rb_icon': "\U0001F6A7"
+            'wm_rb_icon': icon
         }
 
         log.info('Send roadblock.data to Fe2: %s' % payload)

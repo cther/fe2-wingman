@@ -34,7 +34,7 @@ from loggsys import log
 
 
 name = 'FE2 Wingman'
-version = 'v0.1.0'
+version = 'v0.1.1'
 date = 'Oct. 2025'
 sender = name + ' ' + version
 

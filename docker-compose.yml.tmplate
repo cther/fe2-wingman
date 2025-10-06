@@ -4,7 +4,7 @@ services:
     image: python:3.13-alpine
     restart: unless-stopped
     volumes:
-      - ./data:/usr/src/myapp
+      - ./src:/usr/src/myapp
     command:
       sh -c "pip install --no-cache-dir -r /usr/src/myapp/requirements.txt && python -u /usr/src/myapp/main.py"
     environment:
@@ -13,11 +13,11 @@ services:
       WM_CONFIG_FE2_URL: https://fe2.mydomain.eu:80
       WM_CONFIG_FE2_SECRET: seCret12357#
       WM_CONFIG_FE2_USE_UNIT_IDS: false
-      WM_OPTION_ROADBLOCK_ENABLE: true
+      WM_OPTION_ROADBLOCK_ENABLE: false
       WM_OPTION_ROADBLOCK_NEW: false
-      WM_OPTION_ROADBLOCK_UPCOMING: true
-      WM_OPTION_ROADBLOCK_EXPIRING: true
-	  WM_OPTION_VEHICLE_ENABLE: true
-	  WM_OPTION_VEHICLE_SKIP_C: false
-	  WM_OPTION_VEHICLE_SKIP_0: false
-	  WM_OPTION_VEHICLE_SKIP_5: false
+      WM_OPTION_ROADBLOCK_UPCOMING: false
+      WM_OPTION_ROADBLOCK_EXPIRING: false
+      WM_OPTION_VEHICLE_ENABLE: false
+      WM_OPTION_VEHICLE_SKIP_C: false
+      WM_OPTION_VEHICLE_SKIP_0: false
+      WM_OPTION_VEHICLE_SKIP_5: false

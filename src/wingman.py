@@ -128,7 +128,7 @@ class wingman:
             else:
                 status = 'PENDING'
             
-            subject = '\U0001F6A7 ' + x['name']
+            icon = '\U0001F6A7'
 
             message = list((
                 '-- Verkehrsbehinderung --',
@@ -167,7 +167,7 @@ class wingman:
                     center = t.get_midle()
                     log.info('+  Center: %s' % center)
 
-            self.__ep_rb.send(unit, state, x.get('type'), status, x.get('parent'), x.get('name'), x.get('city',''), x.get('street',''), start, end, center, subject, message)
+            self.__ep_rb.send(unit, state, x.get('type'), status, x.get('parent'), x.get('name'), x.get('city',''), x.get('street',''), start, end, center, icon, message)
 
         log.info("Run finished...")
         
@@ -200,7 +200,7 @@ class wingman:
             else:
                 status = 'PENDING'
 
-            subject = '\U0001F6A7 ' + x['name']
+            icon = '\U0001F6A7'
 
             message = list((
                 '-- Verkehrsbehinderung --',
@@ -238,7 +238,7 @@ class wingman:
                     center = t.get_midle()
                     log.info('+  Center: %s' % center)
             
-            self.__ep_rb.send(unit, state, x.get('type'), status, x.get('parent'), x.get('name'), x.get('city',''), x.get('street',''), start, end, center, subject, message)
+            self.__ep_rb.send(unit, state, x.get('type'), status, x.get('parent'), x.get('name'), x.get('city',''), x.get('street',''), start, end, center, icon, message)
 
         log.info("Run finished...")
 
@@ -272,7 +272,7 @@ class wingman:
             else:
                 status = 'ACTIVE'
 
-            subject = '\U0001F6A7 ' + x['name']
+            icon = '\U0001F6A7'
 
             message = list((
                 '-- Verkehrsbehinderung --',
@@ -310,7 +310,7 @@ class wingman:
                     center = t.get_midle()
                     log.info('+  Center: %s' % center)
 
-            self.__ep_rb.send(unit, state, x.get('type'), status, x.get('parent'), x.get('name'), x.get('city',''), x.get('street',''), start, end, center, subject, message)
+            self.__ep_rb.send(unit, state, x.get('type'), status, x.get('parent'), x.get('name'), x.get('city',''), x.get('street',''), start, end, center, icon, message)
 
         log.info("Run finished...")
     
