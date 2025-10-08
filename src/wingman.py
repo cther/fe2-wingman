@@ -324,7 +324,7 @@ class wingman:
             icon = self.__state_lut[x['status']]['icon']
             definition = self.__db_vs.get_state_definition(x['status'])
 
-            source = x['source']]
+            source = x['source']
 
             state = self.__state_lut[x['status']]['num']
             prestate = self.__state_lut[self.__db_vs.get_previous_state(x['vehicle_id'], x['timestamp'])]['num']
