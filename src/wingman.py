@@ -324,9 +324,11 @@ class wingman:
             icon = self.__state_lut[x['status']]['icon']
             definition = self.__db_vs.get_state_definition(x['status'])
 
+            source = x['source']]
+
             state = self.__state_lut[x['status']]['num']
             prestate = self.__state_lut[self.__db_vs.get_previous_state(x['vehicle_id'], x['timestamp'])]['num']
-
+            
             vehicle = self.__db_vs.get_vehicle_details(x['vehicle_id'])
             orga = self.__db_vs.get_vehicle_orga_list(x['vehicle_id'])
 
@@ -357,12 +359,13 @@ class wingman:
             log.info('+  Address:     %s' % vehicle['code'])
             log.info('+  Name:        %s' % vehicle['name'])
             log.info('+  ShortName:   %s' % vehicle['shortName'])
+            log.info('+  Source:      %s' % source)
             log.info('+  Orga:        %s' % orga)
             log.info('+  Icon:        %s' % icon)
             log.info('+  Definition:  %s' % definition)
             log.info('+  Status:      %s' % state)
             log.info('+  PreState:    %s' % prestate)
 
-            self.__ep_vs.send(units, vehicle['code'], vehicle['name'], vehicle['shortName'], orga, state, prestate, icon, definition, message)
+            self.__ep_vs.send(units, vehicle['code'], vehicle['name'], vehicle['shortName'], source, orga, state, prestate, icon, definition, message)
 
         log.info("Run finished...")

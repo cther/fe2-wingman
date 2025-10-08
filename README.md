@@ -1,7 +1,7 @@
 # FE2 Wingman
 Das Ziel dieses Projektes ist es, den bestehenden Funktionsumfang der Alarmplattform [FE2](https://alamos.gmbh/loesungen/alarmplattform) der Alamos GmbH zu erweitern. Motiviert durch den Wunsch nach zusätzlichen Möglichkeiten der automatisierten Benachrichtigung, im Zusammenhang mit [Verkehrsbehinderungen](https://alamos-support.atlassian.net/wiki/spaces/documentation/pages/219480778/Verkehrsbehinderungen#Dokumente-anh%C3%A4ngen-FE2-2.38), entstand der *FE2 Wingman*.
 
-Es besteht darüber hinaus die Möglichkeit, differenziert auf Statusübergänge von Fahrzeugen zu reagieren. Hierzu wird sowohl der aktuelle, als auch der vorherige Status bereitgestellt. Dadurch ist es nun zum Beispiel möglich nur dann ein Ereigniss auslösen (eine Nachricht zu verschicken), wenn ein Fahrzeug den Status 6 wieder verlässt.
+Es besteht darüber hinaus die Möglichkeit, differenziert auf Statusübergänge von Fahrzeugen zu reagieren. Hierzu wird sowohl der aktuelle, als auch der vorherige Status bereitgestellt. Dadurch ist es nun zum Beispiel möglich nur dann ein Ereignis auslösen (eine Nachricht zu verschicken), wenn ein Fahrzeug den Status 6 wieder verlässt.
 
 Der FE2 Wingman greift rein lesend auf die zum FE2 System gehörende Datenbank zu und reagiert auf inhaltliche Veränderungen. Alle übrigen Interaktionen mit dem FE2 Server erfolgen über die öffentliche API, in Form von regulären Alarmierungen. Innerhalb von FE2 kann in gewohnter Art und Weise auf die Alarmierung reagiert werden ([Übersicht Alarmparameter](#alarmparameter))
 
@@ -177,6 +177,7 @@ Der Alarm zu einer Änderung eines Fahrzeugstatus enthält folgende Parameter:
 | `wm_vs_name` | Fahrzeugname |
 | `wm_vs_short_name` | Kurzname |
 | `wm_vs_orga` | Liste der zugeordnenten Organisationen |
+| `wm_vs_source` | Statusquelle |
 | `wm_vs_state_from` | Bisheriger Fahrzeugstatus |
 | `wm_vs_state_to` | Aktualisierter Fahrzeugstatus |
 | `wm_vs_definition` | Statusbeschreibung |

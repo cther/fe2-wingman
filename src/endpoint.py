@@ -125,7 +125,7 @@ class vehiclestate:
     def __init__(self, fe2_ext_iface):
         self.__fe2_ext_iface = fe2_ext_iface
         
-    def send(self, units:list, address, name, shortname, orga, state, prestate, icon, definition, message):
+    def send(self, units:list, address, name, shortname, source, orga, state, prestate, icon, definition, message):
         payload = {}
 
         payload["keyword"] = icon + ' ' + definition
@@ -143,6 +143,7 @@ class vehiclestate:
             'wm_vs_address': address,
             'wm_vs_name': name,
             'wm_vs_short_name': shortname,
+            'wm_vs_source': source,
             'wm_vs_orga': orga,
             'wm_vs_state_from': prestate,
             'wm_vs_state_to': state,
