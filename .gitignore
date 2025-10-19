@@ -4,4 +4,4 @@
 /src/*.sln
 /docker-compose.yml
 /src/__pycache__
-/src/unit_ids.ini
+/src/config.ini

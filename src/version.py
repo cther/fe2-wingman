@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
 # Copyright (C) 2025 Christian Ther
@@ -24,17 +23,9 @@
 #  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 #  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import logging
+__name__ = 'FE2 Wingman'
+__discr__ = 'Wingman for the ALAMOS FE2 Server'
+__date__ = 'Oct. 2025'
 
-
-log = logging
-# use WARNING as the default log level
-log.basicConfig(format="{asctime} - {levelname:<10} - {message}", style="{", datefmt="%Y-%m-%d %H:%M:%S", level=logging.WARNING)
-log.addLevelName(logging.CRITICAL, 'ERROR')
-log.addLevelName(logging.ERROR, 'WARNING')
-log.addLevelName(logging.WARNING, 'INFO')
-log.addLevelName(logging.INFO, 'DEBUG')
-
-def log_conf_srv(path):
-    global log
-    log.basicConfig(filename=path, filemode='a', format="{asctime} - {levelname:<10} - {message}", style="{", datefmt="%Y-%m-%d %H:%M:%S", level=logging.WARNING, force=True)
+__num__ = {'major':0, 'minor':2, 'patch':2}
+__str__ = 'v%d.%d.%d' % (__num__['major'], __num__['minor'], __num__['patch'])

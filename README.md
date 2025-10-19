@@ -9,13 +9,8 @@ Enthaltenden Funktionen:
 * Möglichkeit der Benachrichtigung bei neu erstellten/geänderten, anstehenden oder auslaufenden Verkehrsbehinderungen
 * Fahrzeugstatusmeldung mit zusätzlichen Parametern
 
-> [!NOTE]
-> Prinzipjell sollte das Python Projekt auf vielen Plattformen lauffähig sein. Zurzeit ist allerdings nur die Integration in ein bestehendes [FE2 Docker](https://github.com/alamos-gmbh/fe2-docker) Setup unter Linux getestet.
-
 ## Vorbereitung FE2
-Zur Anbindung des Wingman an den FE2 Server sind folgende Voraussetzungen zu schaffen.
-
-### Alarmeingang
+Zur Anbindung des Wingman an den FE2 Server wird empfohlen eine separate Schnittstelle anzulegen: 
 1. Alarmeingang [Externe Schnittstelle](https://alamos-support.atlassian.net/wiki/spaces/documentation/pages/219480366/Externe+Schnittstelle) hinzufügen
 2. Einstellung -> Version Datenformat: v2
 3. Einstellung -> Gültigen Absender festlegen (sollte eine möglichst zufällige Zeichenkette sein!)
@@ -25,26 +20,14 @@ Zur Anbindung des Wingman an den FE2 Server sind folgende Voraussetzungen zu sch
   - Alternativ kann der FE2 Wingman direkt eine beliebige Einheit (in Abhängigkeit der Organisation) per [Einheitenkennung](#einheitenkennung) alarmieren. In diesem Fall wird hier keine Standard-Einheit festgelegt.
 6. Speichern und schließen
 
-### Einheitenkennung
-Wird für die Verarbeitung eine Standardeinheit verwendet, kann dieser Abschnitt übersprungen werden.
+## Installation 
+Das Prozedere zur Installation variiert etwas zwischen den Plattformen:
+- [Linux/Docker](#installation-unter-docker)
+- [Windows](#installation-unter-windows)
 
-Anderenfalls kann für jede Organisation eine zu alarmierende Einheit, per Einheitenkennung, festgelegt werden. Diese gilt sowohl für Verkehrsbehinderungen, als auch die Änderung eines Fahrzeugstatus.
-
-1. Template kopieren
-```
-cp unit_ids.ini.template data/unit_ids.ini
-```
-2. Für jede Organisation eine Kennung (uid) eintragen
-```
-[orga_units]
-#orga       uid
-Example:    1234567890abcdefghijklmompqrstuvwxyz
-```
-> [!WARNING]
-> Organisationen, für die keine Einheitenkennung hinterlegt ist, werden nicht alarmiert!
-
-## Installation Docker
-Grundsätzlich müssen folgende Voraussetzungen für die Installation erfüllt sein:
+----
+### Installation unter Docker
+Es müssen folgende Voraussetzungen für die Installation erfüllt sein:
 * Lauffähige [Dockerumgebung](https://docs.docker.com/get-started/get-docker/)
 * Docker [Compose](https://getcomposer.org/download/)
 * Lauffähige [FE2 Docker](https://github.com/alamos-gmbh/fe2-docker) Instanz
@@ -66,29 +49,18 @@ docker compose down
     container_name: fe2_wingman
     image: python:3.13-alpine
     restart: unless-stopped
-    depends_on:
-      - fe2_database
-      - fe2_app
     volumes:
       - ./wingman/src:/usr/src/myapp
     command:
       sh -c "pip install --no-cache-dir -r /usr/src/myapp/requirements.txt && python -u /usr/src/myapp/main.py"
     environment:
       TZ: "Europe/Berlin"
-      WM_CONFIG_DB_URL: mongodb://fe2_database:27017
-      WM_CONFIG_FE2_URL: http://fe2_app:83
-      WM_CONFIG_FE2_SECRET: seCret12357#
-      WM_CONFIG_FE2_USE_UNIT_IDS: false
-      WM_OPTION_ROADBLOCK_ENABLE: false
-      WM_OPTION_ROADBLOCK_NEW: false
-      WM_OPTION_ROADBLOCK_UPCOMING: false
-      WM_OPTION_ROADBLOCK_EXPIRING: false
-      WM_OPTION_VEHICLE_ENABLE: false
-      WM_OPTION_VEHICLE_SKIP_C: false
-      WM_OPTION_VEHICLE_SKIP_0: false
-      WM_OPTION_VEHICLE_SKIP_5: false
 ```
-4. Wenn erforderlich den Namen des Datenbank Containers und FE2 Containers übernehmen. Die Werte der Parameter `container_name` müssen in die Konfiguration des Wingman übernommen werden
+4. Konfigurationsdatei aus Template im Unterverzeichnis `src` anlegen
+```
+cp config.ini.template src/config.ini
+```
+5. Die Namen des Datenbank Containers und des FE2 Containers anpassen. Die Werte der Parameter `container_name` müssen in die Konfigurationsdatei `src/config.ini` des Wingman übernommen werden
 ```
 fe2_database:
   ...
@@ -101,48 +73,97 @@ fe2_app:
 ```
 Wingman Konfiguration:
 ```
-depends_on:
-  - fe2_database
-  - fe2_app
-...
-    WM_CONFIG_DB_URL: mongodb://fe2_database:27017
-    WM_CONFIG_FE2_URL: http://fe2_app:83
+[server]
+db_url:                  mongodb://fe2_database:27017
+fe2_url:                 http://fe2_app:83
 ```
-5. Passwort (Gültiger Absender) aus der Konfiguration der [externen Schnittstelle](#vorbereitung-fe2) eintragen
-```
-WM_CONFIG_FE2_SECRET: seCret12357#
-```
-6. Ist die folgende Option aktiviert, wird für jede Organisation die festgelegte Einheit (in der Datei `unit_ids.ini`) alarmiert. Andernfalls wird auf die, im Alarmeingang festgelegte, Standarteinheit zurückgegriffen. Nähere Informationen hierzu finden sich im Abschnitt [Einheitenkennung](#einheitenkennung)  
-```
-WM_CONFIG_FE2_USE_UNIT_IDS: false
-```
-7. Damit Benachrichtigungen zu Verkerhrsbehinderungen verschickt werden, muss diese Option aktiviert sein
-```
-WM_OPTION_ROADBLOCK_ENABLE: false
-```
-8. Über die folgenden Optionen wird festgelegt, bei welchen Ereignissen Benachrichtigungen verschickt werden sollen
- - `NEW` bei Erstellung oder nach Anpassung einer Behinderung
- - `UPCOMING` bei in Kraft treten
- - `EXPIRING` bei Aufhebung
-```
-WM_OPTION_ROADBLOCK_NEW: false
-WM_OPTION_ROADBLOCK_UPCOMING: false
-WM_OPTION_ROADBLOCK_EXPIRING: false
-```
-9. Erst wenn diese Option aktiviert ist, erfolgt eine Benachrichtigung bei einem Wechsel eines Fahrzeugstatus
-```
-WM_OPTION_VEHICLE_ENABLE: false
-```
-10. Der Versand von Meldungen für den Status `C`, `0` und `5` lässt sich bei Bedarf unterdrücken
-```
-WM_OPTION_VEHICLE_SKIP_C: false
-WM_OPTION_VEHICLE_SKIP_0: false
-WM_OPTION_VEHICLE_SKIP_5: false
-```
-11. Damit ist die Installation abgeschlossen und das System kann hochgefahren werden
+6. Übrigen Parameter in der Konfigurationsdatei anpassen (siehe Abschnitt [FE2 Wingman Konfigurationsdatei](#fe2-wingman-konfigurationsdatei)).
+7. Damit ist die Installation abgeschlossen und das System kann hochgefahren werden
 ```
 docker compose up -d
 ```
+
+
+----
+### Installation unter Windows
+Grundsätzlich müssen folgende Voraussetzungen für die Installation erfüllt sein:
+* Lauffähige FE2 Instanz
+* Installierte [Python 3](https://www.python.org/downloads/) Umgebung (Version 3.10 oder neuer)
+
+### Wingman mit FE2 verbinden
+Die folgenden Schritte beschreiben die Integration des FE2 Wingman in ein bestehendes Windows Setup:
+
+1. Release `fe2-wingman-vXXX.zip` auf den FE2 Server kopieren und an einem beliebigen Ort in das Verzeichnis `FE2 Wingman` entpacken
+2. Konfigurationsdatei aus Template im Unterverzeichnis `src` anlegen
+```
+copy config.ini.template src/config.ini
+```
+3. In der Konfigurationsdatei `src/config.ini` zunächst die Parameter für die Serveradressen anpassen. Im Link zur Datenbank `db_url` muss lediglich der Datanbankbenutzer `user` und das Passwort `pass` ersetzt werden. Als Datanbankbenutzer ist `Admin` einzusetzen. Das einzusetzende Passwort findet sich unter dem Schlüssel `dbpassword` in der Windows Registry: `HKEY_LOCAL_MACHINE\SOFTWARE\JavaSoft\Prefs\de.alamos.fe2.server.services./Registry/Service`.  
+```
+[server]
+db_url:                  mongodb://user:pass@localhost:27018
+fe2_url:                 http://localhost:83
+```
+4. Die übrigen Parameter in der Konfigurationsdatei anpassen (siehe Abschnitt [FE2 Wingman Konfigurationsdatei](#fe2-wingman-konfigurationsdatei)).
+5. Die Einrichtung ist damit abgeschlossen und der FE2 Wingman kann mit Hilfe der folgenden Batchskripte entweder als Desktopanwendung oder als Dienst gestartet/eingerichtet werden:
+  - Desktopanwendung: `win_run.bat`
+  - Dienst:           `win_service_installer.bat` (erfordert die Ausführung als Administrator)
+
+
+## FE2 Wingman Konfigurationsdatei
+Über die Parameter in der Konfigurationsdatei `src/config.ini` lassen sich verschiedene Optionen einstellen:
+
+1. Die Server Adressen sind entsprechend der verwendeten Plattform ([Docker](#installation-unter-docker) oder [Windows](#installation-unter-windows)) zu setzten 
+```
+[server]
+db_url:                  mongodb://...
+fe2_url:                 https://...
+```
+2. Passwort (Gültiger Absender) aus der Konfiguration der [externen Schnittstelle](#vorbereitung-fe2) eintragen
+```
+fe2_secret:              seCret12357#
+```
+3. Über die folgenden Optionen wird festgelegt, bei welchen Ereignissen Benachrichtigungen verschickt werden sollen
+ - `new` bei Erstellung oder nach Anpassung einer Behinderung
+ - `upcoming` bei in Kraft treten
+ - `expiring` bei Aufhebung
+```
+[opt_roadblock]
+roadblock_get_new:       false
+roadblock_get_upcoming:  false
+roadblock_get_expiring:  false
+```
+4. Erst wenn diese Option aktiviert ist, erfolgt eine Benachrichtigung bei einem Wechsel eines Fahrzeugstatus
+```
+[opt_vehiclestate]
+vehiclestate_enable:     false
+```
+5. Der Versand von Meldungen für den Status `C`, `0` und `5` lässt sich bei Bedarf unterdrücken
+```
+vehiclestate_skip_c:     false
+vehiclestate_skip_0:     false
+vehiclestate_skip_5:     false
+```
+6. Ist die folgende Option aktiviert, wird für jede Organisation die festgelegte Einheit (Abschnitt `[orga_units]`) alarmiert. Andernfalls wird auf die, im Alarmeingang festgelegte, Standarteinheit zurückgegriffen. Nähere Informationen hierzu finden sich im Abschnitt [Einheitenkennung](#einheitenkennung)  
+```
+[opt_orga_units]
+orga_units_enable:       false
+```
+
+### Einheitenkennung
+Wird für die Verarbeitung eine Standardeinheit verwendet, kann dieser Abschnitt übersprungen werden.
+
+Anderenfalls kann für jede Organisation eine zu alarmierende Einheit, per Einheitenkennung, festgelegt werden. Diese gilt sowohl für Verkehrsbehinderungen, als auch die Änderung eines Fahrzeugstatus.
+
+Für jede Organisation muss eine Kennung (uid) im Abschnitt `[orga_units]` in die Konfigurationsdatei eintragen werden
+```
+[orga_units]
+#orga                    uid
+Example:                 1234567890abcdefghijklmompqrstu
+```
+> [!WARNING]
+> Organisationen, für die keine Einheitenkennung hinterlegt ist, werden nicht alarmiert!
+
 
 ## Alarmparameter
 ### Verkehrsbehinderung
@@ -152,7 +173,7 @@ docker compose up -d
 | `sender` | Konstante Zeichenkette mit Versionsnummer `FE2 Wingman vX.X.X`  |
 | `city` | Ortsnamen |
 | `street` | Straßenname |
-| `lat` & `lng` | Bei einem gezeichneten Strecktenabschnitten wird der Mittelpunkt angegeben, andernfalls der ausgewälte Punkt |
+| `lat` & `lng` | Bei einem gezeichneten Streckenabschnitt wird der Mittelpunkt angegeben, andernfalls der ausgewählte Punkt |
 | `keyword` | Meldungsüberschrift |
 | `message` | Vorgefertigter Meldungstext |
 | `wm_function` | Konstante Zeichenkette `roadblock`|
@@ -176,7 +197,7 @@ Der Alarm zu einer Änderung eines Fahrzeugstatus enthält folgende Parameter:
 | `wm_vs_address` | Einsatzmittelkennung |
 | `wm_vs_name` | Fahrzeugname |
 | `wm_vs_short_name` | Kurzname |
-| `wm_vs_orga` | Liste der zugeordnenten Organisationen |
+| `wm_vs_orga` | Liste der zugeordneten Organisationen |
 | `wm_vs_source` | Statusquelle |
 | `wm_vs_state_from` | Bisheriger Fahrzeugstatus |
 | `wm_vs_state_to` | Aktualisierter Fahrzeugstatus |

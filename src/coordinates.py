@@ -27,11 +27,11 @@
 import math
 
 """
-Latitude (X-Achse)
-Longitude (Y-Achse)
+Latitude (x-axis)
+Longitude (y-axis)
 """
 GL_CORD_LAT_INDEX=0
-GL_CORD_LNG_INDEX=1
+GL_CORD_LON_INDEX=1
 
 
 class track:
@@ -49,10 +49,10 @@ class track:
             return
         
         for point in points[:-1]:
-            vector = [ points[points.index(point)+1][GL_CORD_LAT_INDEX] - point[GL_CORD_LAT_INDEX], points[points.index(point)+1][GL_CORD_LNG_INDEX] - point[GL_CORD_LNG_INDEX] ]
+            vector = [points[points.index(point)+1][GL_CORD_LAT_INDEX] - point[GL_CORD_LAT_INDEX], points[points.index(point)+1][GL_CORD_LON_INDEX] - point[GL_CORD_LON_INDEX]]
             length = math.sqrt(vector[0]**2 + vector[1]**2)
 
-            self.__sectors.append(dict(point = [point[GL_CORD_LAT_INDEX], point[GL_CORD_LNG_INDEX]], vector = vector, length = length))
+            self.__sectors.append(dict(point = [point[GL_CORD_LAT_INDEX], point[GL_CORD_LON_INDEX]], vector = vector, length = length))
             self.__length += length
         
         #print(self.__sectors)
@@ -65,7 +65,7 @@ class track:
                 magnitude = half_length / sector['length']
                 
                 self.__midle[GL_CORD_LAT_INDEX] = sector['point'][GL_CORD_LAT_INDEX] + sector['vector'][GL_CORD_LAT_INDEX] * magnitude
-                self.__midle[GL_CORD_LNG_INDEX] = sector['point'][GL_CORD_LNG_INDEX] + sector['vector'][GL_CORD_LNG_INDEX] * magnitude
+                self.__midle[GL_CORD_LON_INDEX] = sector['point'][GL_CORD_LON_INDEX] + sector['vector'][GL_CORD_LON_INDEX] * magnitude
 
                 break
 

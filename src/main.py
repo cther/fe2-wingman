@@ -29,108 +29,127 @@ import time
 import schedule
 import configparser
 
-import wingman as wm
+from exceptions import *
 from loggsys import log
+import wingman as wm
+import version
 
 
-name = 'FE2 Wingman'
-version = 'v0.1.2'
-date = 'Oct. 2025'
-sender = name + ' ' + version
+name = version.__name__
+num = version.__str__
+date = version.__date__
+sender = name + ' ' + num
+
+log.warning('*** Welcome to %s %s (%s) ***' % (name, num, date))
 
 
-env_db_url = os.getenv('WM_CONFIG_DB_URL')
+config = configparser.ConfigParser()
+config.optionxform=str
 
-env_fe2_url = os.getenv('WM_CONFIG_FE2_URL')
-env_fe2_sec = os.getenv('WM_CONFIG_FE2_SECRET')
+config_path = os.path.dirname(os.path.abspath(__file__))
+config_file = os.path.join(config_path, 'config.ini')
 
-env_opt_units = True if os.getenv('WM_CONFIG_FE2_USE_UNIT_IDS', 'false') == 'true' else False
+config.read(config_file)
 
-env_opt_road = True if os.getenv('WM_OPTION_ROADBLOCK_ENABLE', 'false') == 'true' else False
-env_opt_road_new = True if os.getenv('WM_OPTION_ROADBLOCK_NEW', 'false') == 'true' else False
-env_opt_road_upcoming = True if os.getenv('WM_OPTION_ROADBLOCK_UPCOMING', 'false') == 'true' else False
-env_opt_road_expiring = True if os.getenv('WM_OPTION_ROADBLOCK_EXPIRING', 'false') == 'true' else False
+if not len(config.sections()):
+     log.critical("Can't open configuration file from 'data/config.ini'!")
+     exit()
 
-env_opt_vehicle = True if os.getenv('WM_OPTION_VEHICLE_ENABLE', 'false') == 'true' else False
-env_opt_vehicle_skip_c = True if os.getenv('WM_OPTION_VEHICLE_SKIP_C', 'false') == 'true' else False
-env_opt_vehicle_skip_0 = True if os.getenv('WM_OPTION_VEHICLE_SKIP_0', 'false') == 'true' else False
-env_opt_vehicle_skip_5 = True if os.getenv('WM_OPTION_VEHICLE_SKIP_5', 'false') == 'true' else False
+env_db_url = config['server']['db_url']
 
-print()
-print(' +-------------------------+')
-print(' |                         |')
-print(' |       %s       |' % name)
-print(' |                         |')
-print(' |  %-9s   %s  |' % (version, date))
-print(' |                         |')
-print(' +-------------------------+')
-print()
-print('  - Config "Call units":', env_opt_units)
-print()
-print('  - Option "ROAD":   ', env_opt_road)
-print('      - get new/modified: ', env_opt_road_new)
-print('      - get upcomming:    ', env_opt_road_upcoming)
-print('      - get expiring:     ', env_opt_road_expiring)
-print()
-print('  - Option "VEHICLE": ', env_opt_vehicle)
-print('      - skip state C:     ', env_opt_vehicle_skip_c)
-print('      - skip state 0:     ', env_opt_vehicle_skip_0)
-print('      - skip state 5:     ', env_opt_vehicle_skip_5)
-print()
+env_fe2_url = config['server']['fe2_url']
+env_fe2_sec = config['server']['fe2_secret']
 
+env_opt_units = True if config['opt_orga_units'].get('orga_units_enable', 'false') == 'true' else False
 
-wingman = wm.wingman(sender, env_db_url, env_fe2_url, env_fe2_sec)
-print(' FE2 server version:', wingman.get_server_version())
-print()
+env_opt_road_new = True if config['opt_roadblock'].get('roadblock_get_new', 'false') == 'true' else False
+env_opt_road_upcoming = True if config['opt_roadblock'].get('roadblock_get_upcoming', 'false') == 'true' else False
+env_opt_road_expiring = True if config['opt_roadblock'].get('roadblock_get_expiring', 'false') == 'true' else False
+
+env_opt_vehicle = True if config['opt_vehiclestate'].get('vehiclestate_enable', 'false') == 'true' else False
+env_opt_vehicle_skip_c = True if config['opt_vehiclestate'].get('vehiclestate_skip_c', 'false') == 'true' else False
+env_opt_vehicle_skip_0 = True if config['opt_vehiclestate'].get('vehiclestate_skip_0', 'false') == 'true' else False
+env_opt_vehicle_skip_5 = True if config['opt_vehiclestate'].get('vehiclestate_skip_5', 'false') == 'true' else False
+
+log.warning('Configuration file loaded')
+
+log.info('Database link: %s' % env_db_url)
+log.info('FE2 link: %s' % env_fe2_url)
+log.info('FE2 secret: %s' % env_fe2_sec)
+
+try:
+    wingman = wm.wingman(sender, env_db_url, env_fe2_url, env_fe2_sec)
+except DatabaseError as error:
+    log.critical(error)
+    exit()
+except Fe2ServerError as error:
+    log.critical(error)
+    exit()
+else:
+    log.warning('Server connection established. FE2 version: %s' %  wingman.get_server_version())
+
 
 if env_opt_units:
     units = dict()
-    config = configparser.ConfigParser()
-    config.optionxform=str
-
-    config_path = os.path.dirname(os.path.abspath(__file__))
-    config_file = os.path.join(config_path, 'unit_ids.ini')
-
-    config.read(config_file)
-
-    if not len(config.sections()):
-         log.critical("Can't open unit config file in 'data/unit_ids.ini'!")
-         exit()
 
     orga_units = config['orga_units']
     if not len(orga_units):
-        log.critical('Get No items from config file!')
+        log.critical('Get no unit ids from configuration file!')
         exit()
 
-    log.warning(' Add following units:')
+    log.info('Add following units:')
     for id in orga_units:
         units[id] = orga_units[id]
-        log.warning('  + %-15s : %s' % (id, units[id]))
+        log.info('  + %-15s : %s' % (id, units[id]))
 
     wingman.add_units(units)
+    log.warning('Unit ids loaded')
 
 
 scheduler = schedule.Scheduler()
 #scheduler.every(10).seconds.do(wingman.run_check)
 
-if env_opt_road:
-    if env_opt_road_new:
-        scheduler.every(1).minutes.do(wingman.run_rb_new)
-    
-    if env_opt_road_upcoming:
-        scheduler.every(1).minutes.do(wingman.run_rb_upcoming)
-    
-    if env_opt_road_expiring:
-        scheduler.every(1).minutes.do(wingman.run_rb_expiring)
+
+if env_opt_road_new:
+    log.warning('Support for new/modified road blocks enabled')
+    scheduler.every(1).minutes.do(wingman.run_rb_new)
+
+if env_opt_road_upcoming:
+    log.warning('Support for upcomming road blocks enabled')
+    scheduler.every(1).minutes.do(wingman.run_rb_upcoming)
+
+if env_opt_road_expiring:
+    log.warning('Support for expiring road blocks enabled')
+    scheduler.every(1).minutes.do(wingman.run_rb_expiring)
 
 if env_opt_vehicle:
-    wingman.get_state_c(not env_opt_vehicle_skip_c)
-    wingman.get_state_0(not env_opt_vehicle_skip_0)
-    wingman.get_state_5(not env_opt_vehicle_skip_5)
+    log.warning('Support for vehicle states enabled')
+
+    if env_opt_vehicle_skip_c:
+        log.warning('Skip vehicle state C')
+        wingman.get_state_c(False)
+
+    if env_opt_vehicle_skip_0:
+        log.warning('Skip vehicle state 0')
+        wingman.get_state_0(False)
+
+    if env_opt_vehicle_skip_5:
+        log.warning('Skip vehicke state 5')
+        wingman.get_state_5(False)
 
     scheduler.every(5).seconds.do(wingman.run_vs_new)
 
 
 while True:
-    scheduler.run_pending()
-    time.sleep(1)
+    try:
+        scheduler.run_pending()
+    except DatabaseError as error:
+        log.critical(error)
+        exit()
+    except Fe2ServerError as error:
+        log.critical(error)
+        exit()
+    except Exception as error:
+        log.critical('An unknown error has occurred: %s' % error)
+    else:
+        time.sleep(1)

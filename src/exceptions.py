@@ -24,17 +24,25 @@
 #  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 #  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import logging
 
+class DatabaseError(Exception):
+    def __init__(self, msg = 'Common db error', pymongo_error=None):
+        self.__msg = msg
+        self.__error = pymongo_error
+        super().__init__(self.__msg)
 
-log = logging
-# use WARNING as the default log level
-log.basicConfig(format="{asctime} - {levelname:<10} - {message}", style="{", datefmt="%Y-%m-%d %H:%M:%S", level=logging.WARNING)
-log.addLevelName(logging.CRITICAL, 'ERROR')
-log.addLevelName(logging.ERROR, 'WARNING')
-log.addLevelName(logging.WARNING, 'INFO')
-log.addLevelName(logging.INFO, 'DEBUG')
+    def __str__(self):
+        return self.__msg + ': ' + self.__error.__str__()
 
-def log_conf_srv(path):
-    global log
-    log.basicConfig(filename=path, filemode='a', format="{asctime} - {levelname:<10} - {message}", style="{", datefmt="%Y-%m-%d %H:%M:%S", level=logging.WARNING, force=True)
+class Fe2ServerError(Exception):
+    def __init__(self, msg = 'Common endpoint error', fe2server_error=None, description=None):
+        self.__msg = msg
+        self.__error = fe2server_error
+        self.__desc = description
+        super().__init__(self.__msg)
+
+    def __str__(self):
+        msg = self.__msg
+        msg += ': ' + self.__error.__str__() if self.__error != None else ''
+        msg += ': ' + self.__desc if self.__desc != None else ''
+        return msg

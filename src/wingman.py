@@ -66,7 +66,7 @@ class wingman:
             'STATUS_J' : {'num':'J', 'icon':'\U0000260E'},
         }
 
-        self.run_check()
+        self.__ep.check_connection()
         
     def add_units(self, units:dict):
         self.__ep_units_en = True
@@ -85,19 +85,11 @@ class wingman:
         return self.__db.get_app_version()
 
     def run_check(self):
-        try:
-            ret = self.__ep.check_connection()
-        except Exception as error:
-            log.critical("Fe2 server connection error! %s" % error)
-            exit()
-        else:
-            if ret['status']:
-                log.critical("Fe2 offline: %s" % ret['msg'])
-            else:
-                log.info("Fe2 online")
-
+        self.__ep.check_connection()
 
     def run_rb_new(self):
+        self.__db.check_connection()
+
         log.info("Check for new/modified roadblocks...")
         ret = self.__db_rb.get_new()
         
@@ -107,13 +99,13 @@ class wingman:
             if self.__ep_units_en:
                 unit = self.__ep_orga_units.get(x['parent'], None)
                 if unit == None:
-                    log.error('No unit found. Skipping for %s' % x['parent'])
+                    log.error('Can\'t handle new/updated road block: No unit id found for \'%s\'.' % x['parent'])
                     return
                 
                 log.info('Use unit for %s' % x['parent'])
             else:
                 unit = None
-                log.info('Support for units disabeled')
+                log.info('Support for units disabled')
 
             start = self.__db_rb.conv_tp(x['from']).strftime('%d.%m.%Y %H:%M')
             end = self.__db_rb.conv_tp(x['to']).strftime('%d.%m.%Y %H:%M')
@@ -142,7 +134,7 @@ class wingman:
             if x.get('note', '') != '':
                 message.append('Hinweis: ' + x['note'])
 
-            log.warning('new/updated: %s' % message)
+            log.warning('Handle new/updated road block: %s (msg: %s)' % (x.get('name'), message))
 
             log.info("Get:")
             log.info('+  State:  %s' % state)
@@ -173,6 +165,8 @@ class wingman:
         
 
     def run_rb_upcoming(self):
+        self.__db.check_connection()
+
         log.info("Check for upcoming roadblocks...")
         ret = self.__db_rb.get_upcoming(self.__rb_hour_offset)
         
@@ -182,13 +176,13 @@ class wingman:
             if self.__ep_units_en:
                 unit = self.__ep_orga_units.get(x['parent'], None)
                 if unit == None:
-                    log.error('No unit found. Skipping for %s' % x['parent'])
+                    log.error('Can\'t handle upcoming road block: No unit id found for \'%s\'.' % x['parent'])
                     return
                 
                 log.info('Use unit for %s' % x['parent'])
             else:
                 unit = None
-                log.info('Support for units disabeled')
+                log.info('Support for units disabled')
 
             start = self.__db_rb.conv_tp(x['from']).strftime('%d.%m.%Y %H:%M')
             end = self.__db_rb.conv_tp(x['to']).strftime('%d.%m.%Y %H:%M')
@@ -213,7 +207,7 @@ class wingman:
             if x.get('note', '') != '':
                 message.append('Hinweis: ' + x['note'])
 
-            log.warning('upcoming: %s' % message)
+            log.warning('Handle upcoming road block: %s (msg: %s)' % (x.get('name'), message))
 
             log.info("Get:")
             log.info('+  State:  %s' % state)
@@ -244,6 +238,8 @@ class wingman:
 
 
     def run_rb_expiring(self):
+        self.__db.check_connection()
+
         log.info("Check for expiring roadblocks...")
         ret = self.__db_rb.get_expiring(self.__rb_hour_offset)
         
@@ -253,13 +249,13 @@ class wingman:
             if self.__ep_units_en:
                 unit = self.__ep_orga_units.get(x['parent'], None)
                 if unit == None:
-                    log.error('No unit found. Skipping for %s' % x['parent'])
+                    log.error('Can\'t handle expiring road block: No unit id found for \'%s\'.' % x['parent'])
                     return
                 
                 log.info('Use unit for %s' % x['parent'])
             else:
                 unit = None
-                log.info('Support for units disabeled')
+                log.info('Support for units disabled')
 
             start = self.__db_rb.conv_tp(x['from']).strftime('%d.%m.%Y %H:%M')
             end = self.__db_rb.conv_tp(x['to']).strftime('%d.%m.%Y %H:%M')
@@ -285,7 +281,7 @@ class wingman:
             if x.get('note', '') != '':
                 message.append('Hinweis: ' + x['note'])
 
-            log.warning('expiring: %s' % message)
+            log.warning('Handle expiring road block: %s (msg: %s)' % (x.get('name'), message))
 
             log.info("Get:")
             log.info('+  State:  %s' % state)
@@ -316,6 +312,8 @@ class wingman:
     
 
     def run_vs_new(self):
+        self.__db.check_connection()
+        
         log.info("Check for new vehicle states...")
         ret = self.__db_vs.get_new()
 
@@ -334,7 +332,7 @@ class wingman:
 
             message = 'Statuswechsel %s. Aktueller Status %s (Vorher: %s)' % (vehicle['name'], state, prestate)
 
-            log.warning('state: %s' % message)
+            log.warning('Handle changed vehicle state: %s goes from %s to %s' % (vehicle['name'], prestate, state))
 
             if self.__ep_units_en:
                 units = []
@@ -351,7 +349,7 @@ class wingman:
                     units = None
             else:
                 units = None
-                log.info('Support for units disabeled')
+                log.info('Support for units disabled')
             
             orga = ','.join(map(str, orga))
 

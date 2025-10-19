@@ -29,6 +29,7 @@ import datetime
 import requests
 
 from loggsys import log
+from exceptions import Fe2ServerError
 
 
 class fe2_external_interface:
@@ -41,12 +42,13 @@ class fe2_external_interface:
         api = self.__url + '/rest/status'
         header = {'Content-type': 'application/json'}
 
-        ret =json.loads(requests.get(api, None, headers=header).text)
-        
-        if ret['fe2'] == 'OK' and ret['gae'] == 'OK':
-            return {'status': False}
+        try:
+            stat =requests.get(api, None, headers=header)
+        except Exception as error:
+            raise Fe2ServerError('Fe2 server connection error', error)
         else:
-            return {'status': True, 'msg': 'No response'}
+            if stat.status_code != 200:
+                raise Fe2ServerError('Fe2 server status error', None, stat.text)  
     
     def send_alarm(self, data:dict):
         return self.__send('ALARM', self.__url + '/rest/external/http/alarm/v2', data)
@@ -72,8 +74,14 @@ class fe2_external_interface:
             "data": data
         }
 
-        return json.loads(requests.post(api, data=json.dumps(package), headers=header).text)
-
+        try:
+            stat = requests.post(api, data=json.dumps(package), headers=header)
+        except Exception as error:
+            raise Fe2ServerError('Fe2 server transmission error', error)
+        else:
+            if stat.status_code != 200:
+                raise Fe2ServerError('Fe2 server transmission error', None, stat.text)
+            
 
 class roadblock:
     def __init__(self, fe2_ext_iface):
@@ -118,7 +126,9 @@ class roadblock:
         }
 
         log.info('Send roadblock.data to Fe2: %s' % payload)
-        log.warning('roadblock.send: %s' % self.__fe2_ext_iface.send_alarm(payload))
+        
+        self.__fe2_ext_iface.send_alarm(payload)
+        log.warning('Roadblock message transmited')
         
         
 class vehiclestate:
@@ -152,4 +162,6 @@ class vehiclestate:
         }
 
         log.info('Send vehiclestate to Fe2: %s' % payload)
-        log.warning('vehiclestate.send: %s' % self.__fe2_ext_iface.send_alarm(payload))
+
+        self.__fe2_ext_iface.send_alarm(payload)
+        log.warning('Vehiclestate message transmited')

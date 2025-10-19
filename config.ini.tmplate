@@ -1,0 +1,22 @@
+[server]
+db_url:                  mongodb://...
+fe2_url:                 http://...
+fe2_secret:              seCret12357#
+
+[opt_roadblock]
+roadblock_get_new:       false
+roadblock_get_upcoming:  false
+roadblock_get_expiring:  false
+
+[opt_vehiclestate]
+vehiclestate_enable:     false
+vehiclestate_skip_c:     false
+vehiclestate_skip_0:     false
+vehiclestate_skip_5:     false
+
+[opt_orga_units]
+orga_units_enable:       false
+
+[orga_units]
+#orga                    uid
+#Example:                1234567890abcdefghijklmompqrstu

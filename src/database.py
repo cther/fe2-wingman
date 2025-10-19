@@ -28,6 +28,7 @@ import pymongo
 import pytz
 from datetime import datetime, timedelta
 
+from exceptions import *
 from loggsys import log
 
 
@@ -36,11 +37,10 @@ class mongodb:
         self.__connected = False
         
         try:
-            self.__host = pymongo.MongoClient(url, serverSelectionTimeoutMS=500)
+            self.__host = pymongo.MongoClient(url, serverSelectionTimeoutMS=1000)
             self.__host.server_info()
         except Exception as error:
-            log.critical("Fe2 db connection error! %s" % error)
-            exit()
+            raise DatabaseError('FE2 db connection error', error)
         else:
             self.__connected = True
 
@@ -60,6 +60,12 @@ class mongodb:
             return res[0].get('fullVersion')
         else:
             return None
+        
+    def check_connection(self):
+        try:
+            self.__host.server_info()
+        except Exception as error:
+            raise DatabaseError('FE2 db connection error', error)
 
 
 class roadblock:
@@ -111,24 +117,24 @@ class roadblock:
 
     def get_new(self):
         self.__tp_pre_run = self.__tp_last_run
-        log.info('   roadblock: get new entries')
+        log.info('Get new entries')
         ret = self.__table.find({'lastChanged' : {'$gt': self.__tp_last_run}})            
         self.__tp_last_run = int(datetime.now(self.__tz_utc).timestamp()*1000)
-        log.info('   roadblock: finished, update tp: %d' % self.__tp_last_run)
+        log.info('Finished, update tp: %d' % self.__tp_last_run)
         return ret
     
     def get_upcoming(self, offset=0):
         now = datetime.now().replace(second=0, microsecond=0) + timedelta(hours=offset)
-        log.info('   roadblock: get events that are starting at: %s' % now)
+        log.info('Get events that are starting at: %s' % now)
         ret = self.__table.find({'from' : {'$eq' : now.astimezone(self.__tz_utc) } })
-        log.info('   roadblock: finished')
+        log.info('Finished')
         return ret
     
     def get_expiring(self, offset=0):
         now = datetime.now().replace(second=0, microsecond=0) + timedelta(hours=offset)
-        log.info('   roadblock: get events that are ending at: %s' % now)
+        log.info('Get events that are ending at: %s' % now)
         ret = self.__table.find({'to' : {'$eq' : now.astimezone(self.__tz_utc) } })
-        log.info('   roadblock: finished')
+        log.info('Finished')
         return ret
     
 
@@ -146,9 +152,9 @@ class vehiclestate:
 
         self.__tp_last_run = int(datetime.now(self.__tz_utc).timestamp()*1000)
 
-        self.__skip_state_c = True
-        self.__skip_state_0 = True
-        self.__skip_state_5 = True
+        self.__skip_state_c = False
+        self.__skip_state_0 = False
+        self.__skip_state_5 = False
 
     def reset_last_run(self):
         self.__tp_last_run = 0
@@ -167,13 +173,13 @@ class vehiclestate:
         if self.__skip_state_c or self.__skip_state_0 or self.__skip_state_5:
             skip = []
             if self.__skip_state_c:
-                log.info('   vehiclestate: skip state c')
+                log.info('Skip state c')
                 skip.append({'$ne': 'STATUS_C'})
             if self.__skip_state_0:
-                log.info('   vehiclestate: skip state 1')
+                log.info('Skip state 1')
                 skip.append({'$ne': 'STATUS_0'})
             if self.__skip_state_5:
-                log.info('   vehiclestate: skip state 5')
+                log.info('Skip state 5')
                 skip.append({'$ne': 'STATUS_5'})
 
             if len(skip) == 1:
@@ -185,32 +191,32 @@ class vehiclestate:
         return base
     
     def get_new(self):
-        log.info('   vehiclestate: get new entries')
-        qury = self.__add_skip_list({'timestamp' : {'$gt': self.__tp_last_run}})
-        ret = self.__tb_states.find(qury).sort({'timestamp': 1})
+        log.info('Get new entries')
+        query = self.__add_skip_list({'timestamp' : {'$gt': self.__tp_last_run}})
+        ret = self.__tb_states.find(query).sort({'timestamp': 1})
         self.__tp_last_run = int(datetime.now(self.__tz_utc).timestamp()*1000)
-        log.info('   vehiclestate: finished, update tp: %s' % self.__tp_last_run)
+        log.info('Finished, update tp: %s' % self.__tp_last_run)
         return ret
 
     def get_previous_state(self, vid, timestamp):
-        log.info('   vehiclestate: get previous state for vid: %s' % vid)
-        qury = self.__add_skip_list({'vehicle_id': vid, 'timestamp' : {'$lt': timestamp}})
-        ret = self.__tb_states.find(qury).sort({'timestamp': -1}).limit(1)
+        log.info('Get previous state for vid: %s' % vid)
+        query = self.__add_skip_list({'vehicle_id': vid, 'timestamp' : {'$lt': timestamp}})
+        ret = self.__tb_states.find(query).sort({'timestamp': -1}).limit(1)
         return ret[0]['status']
 
     def get_state_definition(self, state):
-        log.info('   vehiclestate: get definition for state: %s' % state)
+        log.info('Get definition for state: %s' % state)
         ret = self.__tb_statedefs.find({'_id' : {'$eq': state}})
         return ret[0]['translation']
 
     def get_vehicle_details(self, vid):
-        log.info('   vehiclestate: get vehicle information for vid: %s' % vid)
+        log.info('Get vehicle information for vid: %s' % vid)
         ret = self.__tb_vehicle.find({'_id' : vid})
         return ret[0]
     
     def get_vehicle_orga_list(self, vid):
         ret = []
-        log.info('   vehiclestate: get orga list for vid: %s' % vid)
+        log.info('Get orga list for vid: %s' % vid)
         uids = self.__tb_usermap.find({'vehicleId' : vid})
 
         for x in uids:
