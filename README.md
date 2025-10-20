@@ -35,10 +35,10 @@ Es müssen folgende Voraussetzungen für die Installation erfüllt sein:
 ### Wingman an FE2 anbinden
 Die folgenden Schritte beschreiben die Integration des FE2 Wingman in ein bestehendes FE2 Docker Setup:
 
-1. Release `fe2-wingman-vXXX.tar.gz` auf den Server kopieren und im Verzeichnis des FE2 Containers, in den Ordner `wingman`, entpacken 
+1. Release `vXXX.tar.gz` auf den Server kopieren und im Verzeichnis des FE2 Containers, in den Ordner `wingman`, entpacken 
 ```
 mkdir wingman
-tar -xzf fe2-wingman--vXXX.tar.gz -C wingman --strip-components=1
+tar -xzf vXXX.tar.gz -C wingman --strip-components=1
 ```
 2. Container herunterfahren
 ```
